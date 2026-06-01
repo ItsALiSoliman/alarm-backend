@@ -1,37 +1,25 @@
-const Alarm = require("../Alarm");
-
-const alarms = {};
+const Alarm = require("../models/Alarm");
 
 const createAlarmService = async (name, interval) => {
   if (!name || !interval) {
     throw new Error("Name and interval are required");
   }
 
-  await new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, 1000);
-  });
-
-  const alarm = new Alarm(name, interval);
-
-  alarms[name] = alarm;
-
-  alarm.on("alarmFired", (data) => {
-    console.log(data.message);
+  const alarm = await Alarm.create({
+    name,
+    interval,
   });
 
   return alarm;
 };
 
-const getAllAlarmsService = () => {
-  return Object.values(alarms).map((alarm) => {
-    return {
-      name: alarm.name,
-      interval: alarm.interval,
-    };
-  });
+
+const getAllAlarmsService = async () => {
+  const alarms = await Alarm.find();
+
+  return alarms;
 };
+
 
 const startAlarmService = (alarmName) => {
   const alarm = alarms[alarmName];
@@ -45,52 +33,40 @@ const startAlarmService = (alarmName) => {
   return alarm;
 };
 
-const deleteAlarmService = (alarmName) => {
-  const alarm = alarms[alarmName];
+const deleteAlarmService = async (alarmName) => {
+  const deletedAlarm = await Alarm.findOneAndDelete({
+    name: alarmName,
+  });
 
-  if (!alarm) {
+  if (!deletedAlarm) {
     throw new Error("Alarm not found");
   }
 
-  alarm.stop();
-
-  delete alarms[alarmName];
-
-  return true;
+  return deletedAlarm;
 };
 
-const getAlarmByNameService = (alarmName) => {
-  const alarm = alarms[alarmName];
+const getAlarmByNameService = async (alarmName) => {
+  const alarm = await Alarm.findOne({
+    name: alarmName,
+  });
 
   if (!alarm) {
     throw new Error("Alarm not found");
   }
 
-  return {
-    name: alarm.name,
-    interval: alarm.interval,
-  };
+  return alarm;
 };
 
-const updateAlarmService = (alarmName, data) => {
-  const alarm = alarms[alarmName];
+const updateAlarmService = async (alarmName, data) => {
+  const updatedAlarm = await Alarm.findOneAndUpdate({ name: alarmName }, data, {
+    new: true,
+  });
 
-  if (!alarm) {
+  if (!updatedAlarm) {
     throw new Error("Alarm not found");
   }
 
-  if (data.name) {
-    alarm.name = data.name;
-  }
-
-  if (data.interval) {
-    alarm.interval = data.interval;
-  }
-
-  return {
-    name: alarm.name,
-    interval: alarm.interval,
-  };
+  return updatedAlarm;
 };
 
 module.exports = {

@@ -22,9 +22,9 @@ const createAlarm = async (req, res, next) => {
   }
 };
 
-const getAllAlarms = (req, res, next) => {
+const getAllAlarms = async (req, res, next) => {
   try {
-    const alarms = getAllAlarmsService();
+    const alarms = await getAllAlarmsService();
 
     res.json({
       status: "success",
@@ -50,11 +50,11 @@ const startAlarm = (req, res, next) => {
   }
 };
 
-const deleteAlarm = (req, res, next) => {
+const deleteAlarm = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    deleteAlarmService(alarmName);
+    await deleteAlarmService(alarmName);
 
     res.json({
       status: "success",
@@ -65,11 +65,11 @@ const deleteAlarm = (req, res, next) => {
   }
 };
 
-const getAlarmByName = (req, res, next) => {
+const getAlarmByName = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    const alarm = getAlarmByNameService(alarmName);
+    const alarm = await getAlarmByNameService(alarmName);
 
     res.json({
       status: "success",
@@ -80,11 +80,11 @@ const getAlarmByName = (req, res, next) => {
   }
 };
 
-const updateAlarm = (req, res, next) => {
+const updateAlarm = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    const updatedAlarm = updateAlarmService(alarmName, req.body);
+    const updatedAlarm = await updateAlarmService(alarmName, req.body);
 
     res.json({
       status: "success",
