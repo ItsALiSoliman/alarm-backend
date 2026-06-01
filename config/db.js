@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/alarmDB");
+    await mongoose.connect(process.env.MONGO_URI);
 
     console.log("MongoDB connected");
   } catch (err) {
@@ -10,4 +10,5 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
+
 module.exports = connectDB;

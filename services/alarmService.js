@@ -13,16 +13,16 @@ const createAlarmService = async (name, interval) => {
   return alarm;
 };
 
-
 const getAllAlarmsService = async () => {
   const alarms = await Alarm.find();
 
   return alarms;
 };
 
-
-const startAlarmService = (alarmName) => {
-  const alarm = alarms[alarmName];
+const startAlarmService = async (alarmName) => {
+  const alarm = await Alarm.findOne({
+    name: alarmName,
+  });
 
   if (!alarm) {
     throw new Error("Alarm not found");

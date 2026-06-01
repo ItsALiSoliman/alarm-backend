@@ -9,9 +9,11 @@ const {
   updateAlarm,
 } = require("../controllers/alarmController");
 
+const validateAlarm = require("../middlewares/validateAlarm");
+
 const router = express.Router();
 
-router.post("/", createAlarm);
+router.post("/", validateAlarm, createAlarm);
 
 router.get("/", getAllAlarms);
 
