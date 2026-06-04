@@ -1,6 +1,6 @@
 const Alarm = require("../models/Alarm");
 
-const createAlarmService = async (name, interval) => {
+const createAlarmService = async (name, interval, userId) => {
   if (!name || !interval) {
     throw new Error("Name and interval are required");
   }
@@ -8,34 +8,24 @@ const createAlarmService = async (name, interval) => {
   const alarm = await Alarm.create({
     name,
     interval,
+    user: userId,
   });
 
   return alarm;
 };
 
-const getAllAlarmsService = async () => {
-  const alarms = await Alarm.find();
+const getAllAlarmsService = async (userId) => {
+  const alarms = await Alarm.find({
+    user: userId,
+  })
 
   return alarms;
 };
 
-const startAlarmService = async (alarmName) => {
-  const alarm = await Alarm.findOne({
-    name: alarmName,
-  });
-
-  if (!alarm) {
-    throw new Error("Alarm not found");
-  }
-
-  alarm.start();
-
-  return alarm;
-};
-
-const deleteAlarmService = async (alarmName) => {
+const deleteAlarmService = async (alarmName, userId) => {
   const deletedAlarm = await Alarm.findOneAndDelete({
     name: alarmName,
+    user: userId,
   });
 
   if (!deletedAlarm) {
@@ -45,9 +35,10 @@ const deleteAlarmService = async (alarmName) => {
   return deletedAlarm;
 };
 
-const getAlarmByNameService = async (alarmName) => {
+const getAlarmByNameService = async (alarmName, userId) => {
   const alarm = await Alarm.findOne({
     name: alarmName,
+    user: userId,
   });
 
   if (!alarm) {
@@ -57,10 +48,14 @@ const getAlarmByNameService = async (alarmName) => {
   return alarm;
 };
 
-const updateAlarmService = async (alarmName, data) => {
-  const updatedAlarm = await Alarm.findOneAndUpdate({ name: alarmName }, data, {
-    new: true,
-  });
+const updateAlarmService = async (alarmName, data, userId) => {
+  const updatedAlarm = await Alarm.findOneAndUpdate(
+    { name: alarmName, user: userId },
+    data,
+    {
+      new: true,
+    }
+  );
 
   if (!updatedAlarm) {
     throw new Error("Alarm not found");
@@ -72,7 +67,6 @@ const updateAlarmService = async (alarmName, data) => {
 module.exports = {
   createAlarmService,
   getAllAlarmsService,
-  startAlarmService,
   deleteAlarmService,
   getAlarmByNameService,
   updateAlarmService,

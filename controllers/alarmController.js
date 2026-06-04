@@ -1,7 +1,6 @@
 const {
   createAlarmService,
   getAllAlarmsService,
-  startAlarmService,
   deleteAlarmService,
   getAlarmByNameService,
   updateAlarmService,
@@ -11,7 +10,9 @@ const createAlarm = async (req, res, next) => {
   try {
     const { name, interval } = req.body;
 
-    await createAlarmService(name, interval);
+    const userId = req.user.userId;
+
+    await createAlarmService(name, interval, userId);
 
     res.status(201).json({
       status: "success",
@@ -24,7 +25,7 @@ const createAlarm = async (req, res, next) => {
 
 const getAllAlarms = async (req, res, next) => {
   try {
-    const alarms = await getAllAlarmsService();
+    const alarms = await getAllAlarmsService(req.user.userId);
 
     res.json({
       status: "success",
@@ -35,26 +36,11 @@ const getAllAlarms = async (req, res, next) => {
   }
 };
 
-const startAlarm = (req, res, next) => {
-  try {
-    const alarmName = req.params.name;
-
-    startAlarmService(alarmName);
-
-    res.json({
-      status: "success",
-      message: `${alarmName} started`,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 const deleteAlarm = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    await deleteAlarmService(alarmName);
+    await deleteAlarmService(alarmName, req.user.userId);
 
     res.json({
       status: "success",
@@ -69,7 +55,7 @@ const getAlarmByName = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    const alarm = await getAlarmByNameService(alarmName);
+    const alarm = await getAlarmByNameService(alarmName, req.user.userId);
 
     res.json({
       status: "success",
@@ -84,7 +70,7 @@ const updateAlarm = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    const updatedAlarm = await updateAlarmService(alarmName, req.body);
+    const updatedAlarm = await updateAlarmService(alarmName, req.body, req.user.userId);
 
     res.json({
       status: "success",
@@ -99,7 +85,6 @@ const updateAlarm = async (req, res, next) => {
 module.exports = {
   createAlarm,
   getAllAlarms,
-  startAlarm,
   deleteAlarm,
   getAlarmByName,
   updateAlarm,

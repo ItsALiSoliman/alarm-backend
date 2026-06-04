@@ -9,20 +9,20 @@ const {
   updateAlarm,
 } = require("../controllers/alarmController");
 
+const authMiddleware = require("../middlewares/authMiddleware");
+
 const validateAlarm = require("../middlewares/validateAlarm");
 
 const router = express.Router();
 
-router.post("/", validateAlarm, createAlarm);
+router.post("/", authMiddleware, validateAlarm, createAlarm);
 
-router.get("/", getAllAlarms);
+router.get("/", authMiddleware,getAllAlarms);
 
-router.get("/:name", getAlarmByName);
+router.get("/:name", authMiddleware, getAlarmByName);
 
-router.post("/start/:name", startAlarm);
+router.put("/:name",authMiddleware, updateAlarm);
 
-router.put("/:name", updateAlarm);
-
-router.delete("/:name", deleteAlarm);
+router.delete("/:name", authMiddleware, deleteAlarm);
 
 module.exports = router;
