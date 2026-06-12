@@ -1,10 +1,7 @@
 const Alarm = require("../models/Alarm");
+const AppError = require("../utils/AppError");
 
 const createAlarmService = async (name, interval, userId) => {
-  if (!name || !interval) {
-    throw new Error("Name and interval are required");
-  }
-
   const alarm = await Alarm.create({
     name,
     interval,
@@ -14,10 +11,48 @@ const createAlarmService = async (name, interval, userId) => {
   return alarm;
 };
 
-const getAllAlarmsService = async (userId) => {
-  const alarms = await Alarm.find({
-    user: userId,
-  })
+const getAllAlarmsService = async (
+  userId,
+  role,
+  page,
+  limit,
+  search,
+  sort,
+  interval,
+  minInterval,
+  maxInterval,
+) => {
+  const filter = {};
+
+  if (role !== "admin") {
+    filter.user = userId;
+  }
+
+  if (search) {
+    filter.name = { $regex: search, $options: "i" };
+  }
+
+  if (interval) {
+    filter.interval = Number(interval);
+  }
+
+  if (minInterval || maxInterval) {
+    filter.interval = {};
+    if (minInterval) {
+      filter.interval.$gte = Number(minInterval);
+    }
+    if (maxInterval) {
+      filter.interval.$lte = Number(maxInterval);
+    }
+  }
+
+  console.log("ROLE:", role);
+  console.log("FILTER:", filter);
+
+  const alarms = await Alarm.find(filter)
+    .sort(sort)
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   return alarms;
 };
@@ -29,7 +64,7 @@ const deleteAlarmService = async (alarmName, userId) => {
   });
 
   if (!deletedAlarm) {
-    throw new Error("Alarm not found");
+    throw new AppError("Alarm not found", 404);
   }
 
   return deletedAlarm;
@@ -42,7 +77,7 @@ const getAlarmByNameService = async (alarmName, userId) => {
   });
 
   if (!alarm) {
-    throw new Error("Alarm not found");
+    throw new AppError("Alarm not found", 404);
   }
 
   return alarm;
@@ -54,11 +89,11 @@ const updateAlarmService = async (alarmName, data, userId) => {
     data,
     {
       new: true,
-    }
+    },
   );
 
   if (!updatedAlarm) {
-    throw new Error("Alarm not found");
+    throw new AppError("Alarm not found", 404);
   }
 
   return updatedAlarm;

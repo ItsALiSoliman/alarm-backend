@@ -25,7 +25,15 @@ const createAlarm = async (req, res, next) => {
 
 const getAllAlarms = async (req, res, next) => {
   try {
-    const alarms = await getAllAlarmsService(req.user.userId);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const sort = req.query.sort || "name";
+    const interval = req.query.interval;
+    const minInterval = req.query.minInterval;
+    const maxInterval = req.query.maxInterval;
+
+    const alarms = await getAllAlarmsService(req.user.userId, req.user.role, page, limit, search, sort, interval, minInterval, maxInterval);
 
     res.json({
       status: "success",
@@ -70,7 +78,11 @@ const updateAlarm = async (req, res, next) => {
   try {
     const alarmName = req.params.name;
 
-    const updatedAlarm = await updateAlarmService(alarmName, req.body, req.user.userId);
+    const updatedAlarm = await updateAlarmService(
+      alarmName,
+      req.body,
+      req.user.userId,
+    );
 
     res.json({
       status: "success",
